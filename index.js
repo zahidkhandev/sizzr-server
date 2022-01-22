@@ -23,7 +23,12 @@ const errorHandlerMiddleware = require('./src/middleware/error-handler');
 const cors = require('cors');
 const helmet = require('helmet');
 const xss = require('xss-clean');
-const ratelimiter = require('express-rate-limit')
+const ratelimiter = require('express-rate-limit');
+
+//SWAGGER
+const swaggerUI = require('swagger-ui-express');
+const YAML = require('yamljs');
+const swaggerDocument = YAML.load('./swagger.yaml')
 
 
 app.use(express.json());
@@ -46,8 +51,16 @@ const connectDB = require('./src/db/connect');
 
 
 app.get('/', (req, res) => {
-    res.send('Sizzr API')
+    res.send(
+        `
+        <img src='https://sizzr.in/_next/image?url=%2Fimages%2FLogo.png&w=1920&q=75'>
+        <h1> Sizzr Api</h1>
+        <a href='/docs'>View documentation</a>
+        `
+    )
 })
+
+app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
 //--------ROUTES---------
 

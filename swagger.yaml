@@ -1,0 +1,388 @@
+openapi: 3.0.0
+info:
+  title: Sizzr API 1
+  contact: {}
+  version: '1.0'
+servers:
+- url: https://sizzr-server.herokuapp.com/api/
+  variables: {}
+paths:
+  /lucky/auth/login:
+    post:
+      tags:
+      - Admin
+      summary: Admin - Login
+      operationId: Admin-Login
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Admin-LoginRequest'
+            example:
+              email: test@gmail.com
+              password: test
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+  /users/auth/login:
+    post:
+      tags:
+      - User
+      summary: User - Login
+      description: User Login.. 2 methods of logging in currently, GOOGLE LOGIN which only works from the frontend, and normal email password login. Required body fields would be email and password.
+      operationId: User-Login
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User-LoginRequest'
+            example:
+              email: testemail@email.com
+              password: hellothere
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+  /users/auth/register:
+    post:
+      tags:
+      - User
+      summary: User - Register
+      description: New user registration. All the details of the user such as email, password, firstName, lastName etc. must be provided in raw JSON format.
+      operationId: User-Register
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User-RegisterRequest'
+            example:
+              email: testemail@email.com
+              password: hellothere
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+  /users/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+        description: the User ID.
+    get:
+      tags:
+      - User
+      summary: User - Get One
+      description: Get a single user, pass in the user ID as the ID parameter (i.e users/:id)
+      operationId: User-GetOne
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+    patch:
+      tags:
+      - User
+      summary: User - Patch
+      description: Update user, no required fields. Pass in user ID as the ID parameter (i.e users/:id) and the updates of all instances in raw JSON format. The access token will be verified and checked if the ID parameters user and the access token user are the same and only then proceed on updation.
+      operationId: User-Patch
+      parameters:
+      - name: token
+        in: header
+        description: ''
+        required: true
+        style: simple
+        schema:
+          type: string
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MWVhNDk4ZjdhZDQwMTFkNmM3YjRiNzIiLCJpYXQiOjE2NDI4MjQ3OTEsImV4cCI6MTY0MzQyOTU5MX0.XYioPFNJaZW7Rh7NnwtOpMRmVKzBLt3vNQHTXerBd7U
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+  /users:
+    get:
+      tags:
+      - User
+      summary: User Get All
+      description: To get all users. ---> Change it to only accessible by mods and admins in the future. Currently accessible to everyone.
+      operationId: UserGetAll
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+  /users/stats:
+    get:
+      tags:
+      - User
+      summary: User - Get Stats
+      description: To access all user statistics, the authorization type should be of an admin or moderator. Only they can access this route.
+      operationId: User-GetStats
+      parameters:
+      - name: token
+        in: header
+        description: moderator's token or admins
+        required: true
+        style: simple
+        schema:
+          type: string
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxYjJjM2M2NzJhNjZmOTYwZDVmOGQ3ZSIsImlzQWRtaW4iOmZhbHNlLCJpc01vZCI6dHJ1ZSwiaWF0IjoxNjQyODI1NzUyLCJleHAiOjE2NDMyNTc3NTJ9.LqcA7NjvPZGS3_3t5fsI8tbOyYQGfcGtd65jobim1ro
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+  /appointments:
+    post:
+      tags:
+      - Appointments
+      summary: Appointment - Create
+      operationId: Appointment-Create
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Appointment-CreateRequest'
+            example:
+              startTime: 2022-01-22T14:56:59.301Z
+              endTime: 2022-01-22T15:56:59.301Z
+              bookedTime: 2022-01-22T15:56:59.301Z
+              storeInfo: 61b61070f4c7f9a69a25a092
+              status: Processing
+              servicesSelected:
+              - Haircut
+              - Hairwash
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security:
+      - bearer: []
+    get:
+      tags:
+      - Appointments
+      summary: Appointment - Get all
+      operationId: Appointment-Getall
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security:
+      - bearer: []
+  /appointments/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+        description: the appointment ID.
+    get:
+      tags:
+      - Appointments
+      summary: Appointment - Get One
+      operationId: Appointment-GetOne
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security:
+      - bearer: []
+    patch:
+      tags:
+      - Appointments
+      summary: Appointment - Patch
+      operationId: Appointment-Patch
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Appointment-PatchRequest'
+            example:
+              status: Processing
+              startTime: 2022-01-22T14:56:59.301Z
+              endTime: 2022-01-22T15:56:59.301Z
+              paid: false
+              paymentType: COD
+              servicesSelected:
+              - Haircut
+              - Hairwash
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security:
+      - bearer: []
+    delete:
+      tags:
+      - Appointments
+      summary: Appointment - Delete
+      operationId: Appointment-Delete
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security:
+      - bearer: []
+components:
+  schemas:
+    Admin-LoginRequest:
+      title: Admin-LoginRequest
+      required:
+      - email
+      - password
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      example:
+        email: test@gmail.com
+        password: test
+    User-LoginRequest:
+      title: User-LoginRequest
+      required:
+      - email
+      - password
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      example:
+        email: testemail@email.com
+        password: hellothere
+    User-RegisterRequest:
+      title: User-RegisterRequest
+      required:
+      - email
+      - password
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      example:
+        email: testemail@email.com
+        password: hellothere
+    Appointment-CreateRequest:
+      title: Appointment-CreateRequest
+      required:
+      - startTime
+      - endTime
+      - bookedTime
+      - storeInfo
+      - status
+      - servicesSelected
+      type: object
+      properties:
+        startTime:
+          type: string
+        endTime:
+          type: string
+        bookedTime:
+          type: string
+        storeInfo:
+          type: string
+        status:
+          type: string
+        servicesSelected:
+          type: array
+          items:
+            type: string
+          description: ''
+      example:
+        startTime: 2022-01-22T14:56:59.301Z
+        endTime: 2022-01-22T15:56:59.301Z
+        bookedTime: 2022-01-22T15:56:59.301Z
+        storeInfo: 61b61070f4c7f9a69a25a092
+        status: Processing
+        servicesSelected:
+        - Haircut
+        - Hairwash
+    Appointment-PatchRequest:
+      title: Appointment-PatchRequest
+      required:
+      - status
+      - startTime
+      - endTime
+      - paid
+      - paymentType
+      - servicesSelected
+      type: object
+      properties:
+        status:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        paid:
+          type: boolean
+        paymentType:
+          type: string
+        servicesSelected:
+          type: array
+          items:
+            type: string
+          description: ''
+      example:
+        status: Processing
+        startTime: 2022-01-22T14:56:59.301Z
+        endTime: 2022-01-22T15:56:59.301Z
+        paid: false
+        paymentType: COD
+        servicesSelected:
+        - Haircut
+        - Hairwash
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+security: []
+tags:
+- name: User
+  description: ''
+- name: Appointments
+  description: ''
+- name: Admin
+  description: ''
