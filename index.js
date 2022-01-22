@@ -1,0 +1,91 @@
+const express = require('express');
+const mongoose = require('mongoose');
+const app = express();
+const createError = require('http-errors');
+require('dotenv').config();
+require('express-async-errors');
+
+//ROUTES IMPORT
+const authRoute = require('./src/routes/auth');
+const userRoute = require('./src/routes/users');
+const adminAuthRoute = require('./src/routes/adminAuth');
+const adminRoute = require('./src/routes/admin');
+const newStoreRoute = require('./src/routes/newStore')
+const vendorAuthRoute = require('./src/routes/vendorAuth');
+const vendorRoute = require('./src/routes/vendor');
+const appointmentsRoute = require('./src/routes/appointments')
+
+// error handler
+const notFoundMiddleware = require('./src/middleware/not-found');
+const errorHandlerMiddleware = require('./src/middleware/error-handler');
+
+//Security packages
+const cors = require('cors');
+const helmet = require('helmet');
+const xss = require('xss-clean');
+const ratelimiter = require('express-rate-limit')
+
+
+app.use(express.json());
+
+//Security Config
+app.set('trust proxy', 1);
+app.use(ratelimiter({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+}));
+app.use(cors());
+app.use(helmet());
+app.use(xss());
+
+
+//connect db
+const connectDB = require('./src/db/connect');
+
+
+app.get('/', (req, res) => {
+    res.send('Sizzr API')
+})
+
+//--------ROUTES---------
+
+//User
+app.use("/api/users", userRoute);
+app.use("/api/users/auth", authRoute);
+//Store
+app.use('/api/new-store/create', newStoreRoute);
+//Admin
+app.use("/api/lucky", adminRoute);
+app.use('/api/lucky/auth', adminAuthRoute);
+//Vendor
+app.use("/api/vendor/auth", vendorAuthRoute);
+app.use("/api/vendor", vendorRoute);
+//Appointments
+app.use("/api/appointments", appointmentsRoute);
+
+
+
+//ERROR HANDLER
+
+app.use(notFoundMiddleware);
+app.use(errorHandlerMiddleware);
+
+
+const port = process.env.PORT || 8000;
+
+const start = async () => {
+    try {
+        await connectDB(process.env.MONGO_URL)
+        console.log('db conneted');
+        app.listen(port, () =>
+            console.log(`Server is listening on port ${port}...`)
+        );
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+start();
+
