@@ -3,7 +3,8 @@ const CryptoJS = require('crypto-js');
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library')
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-const { BadRequestError, UnauthenticatedError } = require('../../errors/index')
+const { BadRequestError, UnauthenticatedError } = require('../../errors/index');
+const { StatusCodes } = require('http-status-codes');
 
 
 const register = async (req, res) => {
@@ -14,16 +15,16 @@ const register = async (req, res) => {
     const newUser = new User({
         email: req.body.email,
         password: CryptoJS.AES.encrypt(req.body.password, process.env.SECRET_KEY).toString(),
-        phoneNumber: req.body.phoneNumber
+        phoneNumber: req.body.phoneNumber,
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
     });
 
     const user = await newUser.save();
 
     const accessToken = user.createJWT();
 
-    const { password, ...info } = user._doc;
-
-    res.status(201).json({ ...info, accessToken });
+    res.status(StatusCodes.OK).json({ firstName, lastName, email, accessToken });
 
 }
 
@@ -49,7 +50,7 @@ const login = async (req, res) => {
 
     const accessToken = user.createJWT();
 
-    const { firstName, lastName } = user._doc
+    const { firstName, lastName } = user._doc;
 
     res.status(200).json({ firstName, lastName, email, accessToken }); //TODO CHANGE TO NAME ALONE
 }
