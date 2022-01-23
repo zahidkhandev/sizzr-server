@@ -66,7 +66,7 @@ app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
 //User
 app.use("/api/users", userRoute);
-app.use("/api/users/auth", authRoute);
+app.use("/api/users/ ", authRoute);
 //Store
 app.use('/api/new-store/create', newStoreRoute);
 //Admin

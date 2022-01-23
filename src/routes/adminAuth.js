@@ -8,11 +8,13 @@ const verify = require('../../verifyToken')
 
 router.post('/register', verify, async (req, res) => {
     if (req.user.isAdmin) {
-
         const newUser = new Admin({
-            username: req.body.email,
             email: req.body.email,
             password: CryptoJS.AES.encrypt(req.body.password, process.env.SECRET_KEY).toString(),
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            phone: req.body.phone,
+            address: req.body.address,
             position: req.body.position,
             profilePic: req.body.profilesPic,
             isAdmin: req.body.isAdmin,
