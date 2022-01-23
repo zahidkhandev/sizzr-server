@@ -9,8 +9,8 @@ const { StatusCodes } = require('http-status-codes');
 
 const register = async (req, res) => {
 
-    if (!req.body.email || !req.body.password) {
-        throw new BadRequestError('Please provide email and password')
+    if (!req.body.email || !req.body.password || !req.body.firstName || !req.body.lastName) {
+        throw new BadRequestError('Please provide email password first name and last name')
     }
     const newUser = new User({
         email: req.body.email,
@@ -24,7 +24,7 @@ const register = async (req, res) => {
 
     const accessToken = user.createJWT();
 
-    res.status(StatusCodes.OK).json({ firstName, lastName, email, accessToken });
+    res.status(StatusCodes.OK).json({ firstName: req.body.firstName, lastName: req.body.lastName, email: req.body.email, accessToken });
 
 }
 
