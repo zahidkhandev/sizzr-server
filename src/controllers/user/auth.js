@@ -49,7 +49,7 @@ const login = async (req, res) => {
 
     const accessToken = user.createJWT();
 
-    const { firstName, lastName, email } = user._doc
+    const { firstName, lastName } = user._doc
 
     res.status(200).json({ firstName, lastName, email, accessToken }); //TODO CHANGE TO NAME ALONE
 }
