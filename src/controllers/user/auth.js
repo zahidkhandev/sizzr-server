@@ -79,10 +79,17 @@ const googleRegister = async (req, res) => {
                     }
                     //SIGN UP NEW USER WITH THIS EMAIL
                     else {
+                        var password = generator.generate({
+                            length: 10,
+                            numbers: true,
+                        });
+
                         const newUser = new User({
                             email: email,
                             firstName: given_name,
                             lastName: family_name,
+                            emailVerified: true,
+                            password: 'abc',
                         });
                         try {
                             await newUser.save((err, data) => {

@@ -70,7 +70,7 @@ const getAllUsers = async (req, res) => {
 
 const getUserStats = async (req, res) => {
     const today = new Date();
-    const lastYear = todsay.setFullYear(today.setFullYear() - 1);
+    const lastYear = Date.setFullYear(today.setFullYear() - 1);
     const monthsArray = [
         "January",
         "Febuary",

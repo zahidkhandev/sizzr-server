@@ -2,25 +2,34 @@ const User = require('../../models/User');
 const { StatusCodes } = require('http-status-codes');
 const createError = require('http-errors');
 const mongoose = require('mongoose');
+const CryptoJS = require('crypto-js');
 const { NotFoundError, BadRequestError, UnauthenticatedError } = require('../../errors/index')
 
 
 const getUser = async (req, res, next) => {
-    try {
-        const user = await User.findById(req.params.id);
 
-        if (!user) {
-            throw new NotFoundError('User with this ID does not exist.')
+    console.log(req.user.userId);
+    console.log(req.params.id);
+    if (req.user.userId === req.params.id) {
+        try {
+            const user = await User.findById(req.user.userId);
+
+            if (!user) {
+                throw new NotFoundError('User with this ID does not exist.')
+            }
+
+            const { password, ...info } = user._doc
+            res.status(200).json(info);
+
+        } catch (err) {
+            if (err instanceof mongoose.CastError) {
+                throw new BadRequestError('Username format invalid.')
+            }
+            next(err);
         }
-
-        const { password, ...info } = user._doc
-        res.status(200).json(info);
-
-    } catch (err) {
-        if (err instanceof mongoose.CastError) {
-            throw new BadRequestError('Username format invalid.')
-        }
-        next(err);
+    }
+    else {
+        throw new UnauthenticatedError('You can only view your profile.');
     }
 }
 
@@ -40,7 +49,6 @@ const deleteUser = async (req, res, next) => {
         } catch (err) {
             if (err instanceof mongoose.CastError) {
                 throw new BadRequestError('User ID invalid')
-                return;
             }
             next(err);
         }
@@ -66,7 +74,9 @@ const patchUser = async (req, res, next) => {
                 throw createError(404, 'User does not exist');
             }
 
-            res.status(200).json(updatedUser);
+            const { password, ...info } = updatedUser._doc;
+
+            res.status(200).json(info);
 
         } catch (err) {
             if (err instanceof mongoose.CastError) {

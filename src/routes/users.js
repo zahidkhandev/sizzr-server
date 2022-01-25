@@ -11,6 +11,6 @@ router.get('/stats', verify, getUserStats);
 
 
 //GET DELETE AND PATCH USER
-router.route('/:id').get(getUser).patch(verify, patchUser).delete(verify, deleteUser);
+router.route('/:id').get(verify, getUser).patch(verify, patchUser).delete(verify, deleteUser);
 
 module.exports = router;
