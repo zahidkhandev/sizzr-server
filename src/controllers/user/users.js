@@ -8,8 +8,6 @@ const { NotFoundError, BadRequestError, UnauthenticatedError } = require('../../
 
 const getUser = async (req, res, next) => {
 
-    console.log(req.user.userId);
-    console.log(req.params.id);
     if (req.user.userId === req.params.id) {
         try {
             const user = await User.findById(req.user.userId);

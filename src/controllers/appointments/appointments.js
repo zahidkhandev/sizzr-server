@@ -1,15 +1,34 @@
-const router = require('express').Router();
 const Appointment = require('../../models/Appointment');
-const CryptoJS = require('crypto-js');
-const verify = require('../../../verifyToken');
-const createError = require('http-errors');
-const mongoose = require('mongoose')
 const { StatusCodes } = require('http-status-codes');
 const { BadRequestError, NotFoundError } = require('../../errors/index');
+const Store = require('../../models/Store');
 
 
 const createAppointment = async (req, res, next) => {
     req.body.createdBy = req.user.userId;
+
+    const { storeInfo, startTime, endTime } = req.body
+
+    if (!storeInfo) {
+        throw new BadRequestError('Invalid Store');
+    }
+
+    if (!startTime) {
+        throw new BadRequestError('Appointment start time is required')
+    }
+
+    if (!endTime) {
+        throw new BadRequestError('Appointment end time is required')
+    }
+
+    const store = await Store.findById(storeInfo);
+
+    if (!store) {
+        throw new NotFoundError('Store was not found in database..')
+    }
+
+    console.log(store);
+
     const appointment = await Appointment.create(req.body);
     res.status(StatusCodes.CREATED).json({ appointment })
 
@@ -33,9 +52,13 @@ const getAll = async (req, res) => {
     res.status(StatusCodes.OK).json({ appointments, count: appointments.length })
 }
 
+
+
 const getAppointmentStats = async (req, res) => {
 
 }
+
+
 
 const deleteAppointment = async (req, res, next) => {
     const { userId } = req.user
