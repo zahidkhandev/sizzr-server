@@ -24,7 +24,7 @@ const register = async (req, res) => {
 
     const accessToken = user.createJWT();
 
-    res.status(StatusCodes.OK).json({ firstName: req.body.firstName, lastName: req.body.lastName, email: req.body.email, accessToken });
+    res.status(StatusCodes.OK).json({ _id: user._id, firstName: req.body.firstName, lastName: req.body.lastName, email: req.body.email, accessToken });
 
 }
 
@@ -52,7 +52,7 @@ const login = async (req, res) => {
 
     const { firstName, lastName } = user._doc;
 
-    res.status(200).json({ firstName, lastName, email, accessToken }); //TODO CHANGE TO NAME ALONE
+    res.status(200).json({ _id, firstName, lastName, email, accessToken }); //TODO CHANGE TO NAME ALONE
 }
 
 
