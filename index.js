@@ -37,7 +37,7 @@ app.use(express.json());
 app.set('trust proxy', 1);
 app.use(ratelimiter({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 1000, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+    max: 500, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
     standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 }));
@@ -73,8 +73,8 @@ app.use('/api/new-store/create', newStoreRoute);
 app.use("/api/lucky", adminRoute);
 app.use('/api/lucky/auth', adminAuthRoute);
 //Vendor
-app.use("/api/vendor/auth", vendorAuthRoute);
-app.use("/api/vendor", vendorRoute);
+app.use("/api/store/auth", vendorAuthRoute);
+app.use("/api/store", vendorRoute);
 //Appointments
 app.use("/api/appointments", appointmentsRoute);
 
