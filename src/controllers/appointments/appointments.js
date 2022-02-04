@@ -2,6 +2,7 @@ const Appointment = require('../../models/Appointment');
 const { StatusCodes } = require('http-status-codes');
 const { BadRequestError, NotFoundError } = require('../../errors/index');
 const Store = require('../../models/Store');
+const mongoose = require('mongoose')
 
 
 const createAppointment = async (req, res, next) => {
@@ -41,10 +42,80 @@ const getAppointment = async (req, res, next) => {
     const appointment = await Appointment.findOne({ _id: appointmentId, createdBy: userId })
 
     if (!appointment) {
-        throw new NotFoundError('Appointment not found')
+        throw new NotFoundError('User does not have any appointments')
     }
 
     res.status(StatusCodes.OK).json({ appointment })
+}
+
+const getAppointmentUserSide = async (req, res, next) => {
+    const userId = req.user.userId;
+    const appointments = await Appointment.aggregate(
+        [
+            {
+                $match: {
+                    createdBy: mongoose.Types.ObjectId(userId)
+                }
+            }, {
+                $lookup: {
+                    from: 'stores',
+                    localField: 'storeInfo',
+                    foreignField: '_id',
+                    as: 'store_details'
+                }
+            }, {
+                $project: {
+                    _id: 1,
+                    status: 1,
+                    paid: 1,
+                    paymentType: 1,
+                    servicesSelected: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    storeInfo: 1,
+                    endTime: 1,
+                    startTime: 1,
+                    store_details: {
+                        '$arrayElemAt': [
+                            '$store_details', 0
+                        ]
+                    }
+                }
+            }, {
+                $project: {
+                    _id: 1,
+                    status: 1,
+                    paid: 1,
+                    paymentType: 1,
+                    servicesSelected: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    endTime: 1,
+                    startTime: 1,
+                    store_details: {
+                        _id: '$store_details._id',
+                        phone: '$store_details.phone',
+                        address: '$store_details.address',
+                        shopName: '$store_details.shopName',
+                        email: '$store_details.email',
+                        state: '$store_details.state',
+                        city: '$store_details.city',
+                        area: '$store_details.locationInCity',
+                        landmark: '$store_details.landMark',
+                        categories: '$store_details.categories',
+                        website: '$store_details.website'
+                    }
+                }
+            }
+        ]
+    )
+
+    if (!appointments) {
+        throw new NotFoundError('Appointment not found')
+    }
+
+
+    res.status(StatusCodes.OK).json(appointments);
 }
 
 const getAll = async (req, res) => {
@@ -108,5 +179,6 @@ module.exports = {
     getAppointmentStats,
     deleteAppointment,
     patchAppointment,
-    createAppointment
+    createAppointment,
+    getAppointmentUserSide
 }

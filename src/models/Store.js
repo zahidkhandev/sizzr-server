@@ -1,14 +1,5 @@
 const mongoose = require("mongoose");
 
-// const pointSchema = new mongoose.Schema({
-//     type: {
-//         type: String,
-//         enum: ['Point'],
-//     },
-//     coordinates: {
-//         type: [Number],
-//     }
-// });
 
 const StoreSchema = new mongoose.Schema({
     password: { type: String, required: true },
@@ -22,6 +13,16 @@ const StoreSchema = new mongoose.Schema({
     city: { type: String },
     locationInCity: { type: String },
     landMark: { type: String },
+    location: {
+        type: {
+            type: String,
+            default: 'Point',
+        },
+        coordinates: {
+            type: [Number],
+            required: true,
+        }
+    },
     gstNumber: { type: String },
     gstCertificate: { type: String },
     panNumber: { type: String },
@@ -30,6 +31,7 @@ const StoreSchema = new mongoose.Schema({
     website: { type: String },
     businessType: { type: String },
     isKidFriendly: { type: Boolean },
+
     gender: {
         name: { type: String },
         id: { type: Number }
@@ -53,8 +55,6 @@ const StoreSchema = new mongoose.Schema({
             url: { type: String }
         }
     ],
-    employees: { type: Array },
-    appoinments: { type: Array }
-}, { timestamps: true })
+}, { timestamps: true });
 
 module.exports = mongoose.model('Store', StoreSchema);

@@ -28,6 +28,7 @@ const getStore = async (req, res, next) => {
     }
 }
 
+
 const getAll = async (req, res) => {
     const query = req.query.new;
     // if (req.user.isAdmin) {
@@ -145,5 +146,5 @@ module.exports = {
     getAll,
     getStoreStats,
     deleteStore,
-    patchStore
+    patchStore,
 }

@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const verify = require('../../verifyToken');
 const { patchUser, deleteUser, getUser, getAllUsers, getUserStats } = require('../controllers/admin/user');
-const { createStore, deleteStore, getStore, getUnverifiedStore, deleteUnverifiedStore } = require('../controllers/admin/store');
+const { createStore, deleteStore, getStore, getUnverifiedStore, deleteUnverifiedStore, sendCreatedEmail } = require('../controllers/admin/store');
 
 
 
@@ -32,12 +32,13 @@ router.get('/users/stats', verify, getUserStats);
 
 //GET ALL
 
-router.get('/stores/unverified', verify, getUnverifiedStore);
+router.get('/store/unverified', verify, getUnverifiedStore);
 
 //DELETE
 router.delete("/store/unverified/delete/:id", verify, deleteUnverifiedStore);
 
 
+router.post('/store/verification', sendCreatedEmail)
 
 
 
@@ -51,6 +52,9 @@ router.delete("/store/delete/:id", deleteStore);
 
 //GET
 router.get('/store/find/:id', getStore);
+
+
+//EMAIL
 
 
 module.exports = router;

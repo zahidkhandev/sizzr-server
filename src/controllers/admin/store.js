@@ -1,10 +1,11 @@
 const { StatusCodes } = require("http-status-codes");
 const Store = require("../../models/Store");
-const UnverfiedStore = require('../../models/UnverifiedStores')
+const UnverifiedStore = require('../../models/UnverifiedStores')
 const CryptoJS = require('crypto-js');
 var generator = require('generate-password');
 const { UnauthenticatedError, BadRequestError, NotFoundError } = require('../../errors/index');
-
+const AWS = require('aws-sdk');
+const { sendRawEmail, sendEmail } = require("../../aws/verifiedemail");
 
 //---------------VERIFIED STORE FUNCTIONS---------------
 
@@ -53,6 +54,16 @@ const getStore = async (req, res, next) => {
 }
 
 
+const sendCreatedEmail = async (req, res, next) => {
+    const toEmail = req.body.email;
+
+    const emailResponse = await sendEmail('inboxzahidkhan@gmail.com', 'Zahid');
+
+    console.log(emailResponse);
+
+    res.json({ emailResponse });
+}
+
 
 
 
@@ -62,12 +73,12 @@ const getStore = async (req, res, next) => {
 const getUnverifiedStore = async (req, res, next) => {
 
     if (req.user.isMod || req.user.isAdmin) {
-        const stores = await UnverfiedStore.find().sort({ _id: 1 }).limit(10);
+        const stores = await UnverifiedStore.find().sort({ _id: 1 }).limit(10);
 
         if (!stores) {
             throw new NotFoundError('Stores not found.')
         }
-        res.status(StatusCodes.OK).json({ stores });
+        res.status(StatusCodes.OK).json(stores);
 
     } else {
         throw new UnauthenticatedError('You are not authorized for this action!')
@@ -94,5 +105,6 @@ module.exports = {
     deleteStore,
     getStore,
     getUnverifiedStore,
-    deleteUnverifiedStore
+    deleteUnverifiedStore,
+    sendCreatedEmail
 }

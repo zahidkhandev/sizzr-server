@@ -1,17 +1,5 @@
 const mongoose = require("mongoose");
 
-const pointSchema = new mongoose.Schema({
-    type: {
-        type: String,
-        enum: ['Point'],
-        required: true
-    },
-    coordinates: {
-        type: [Number],
-        required: true
-    }
-});
-
 const UnverifiedStoreSchema = new mongoose.Schema({
     shopName: { type: String },
     email: { type: String, unique: true, required: true },
@@ -23,7 +11,16 @@ const UnverifiedStoreSchema = new mongoose.Schema({
     city: { type: String },
     locationInCity: { type: String },
     landMark: { type: String },
-    // location: pointSchema,
+    location: {
+        type: {
+            type: String,
+            default: 'Point',
+        },
+        coordinates: {
+            type: [Number],
+            required: true,
+        }
+    },
     gstNumber: { type: String },
     gstCertificate: { type: String },
     panNumber: { type: String },
