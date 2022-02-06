@@ -1,6 +1,5 @@
-const User = require("../../models/User");
+const Artist = require("../../models/Artists");
 const CryptoJS = require("crypto-js");
-const jwt = require("jsonwebtoken");
 const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const { BadRequestError, UnauthenticatedError } = require("../../errors/index");
@@ -17,7 +16,7 @@ const register = async (req, res) => {
       "Please provide email password first name and last name"
     );
   }
-  const newUser = new User({
+  const newUser = new Artist({
     email: req.body.email,
     password: CryptoJS.AES.encrypt(
       req.body.password,
@@ -34,6 +33,7 @@ const register = async (req, res) => {
 
   res.status(StatusCodes.OK).json({
     _id: user._doc._id,
+    isArtist: true,
     firstName: req.body.firstName,
     lastName: req.body.lastName,
     email: req.body.email,
@@ -48,7 +48,7 @@ const login = async (req, res) => {
     throw new BadRequestError("Please provide email and password");
   }
 
-  const user = await User.findOne({ email: email });
+  const user = await Artist.findOne({ email: email });
   if (!user) {
     throw new UnauthenticatedError("Invalid credentials");
   }
@@ -64,7 +64,9 @@ const login = async (req, res) => {
 
   const { firstName, lastName, _id } = user._doc;
 
-  res.status(200).json({ _id, firstName, lastName, email, accessToken }); //TODO CHANGE TO NAME ALONE
+  res
+    .status(200)
+    .json({ _id, firstName, lastName, email, accessToken, isArtist: true }); //TODO CHANGE TO NAME ALONE
 };
 
 const googleRegister = async (req, res) => {
@@ -74,7 +76,7 @@ const googleRegister = async (req, res) => {
     .then((response) => {
       const payload = response.getPayload();
       const { given_name, email, family_name } = payload;
-      User.findOne({ email }).exec(async (err, user) => {
+      Artist.findOne({ email }).exec(async (err, user) => {
         if (err) {
           return res.status(400).json({
             error: "Something went wrong..",
@@ -92,7 +94,7 @@ const googleRegister = async (req, res) => {
               numbers: true,
             });
 
-            const newUser = new User({
+            const newUser = new Artist({
               email: email,
               firstName: given_name,
               lastName: family_name,

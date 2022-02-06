@@ -1,7 +1,11 @@
-const router = require("express").Router();
-const { googleRegister, register, login } = require("../controllers/user/auth");
+const {
+  googleRegister,
+  register,
+  login,
+} = require("../controllers/artists/auth");
 
-//GOOGLE
+const router = require("express").Router();
+
 router.post("/google", googleRegister);
 
 router.post("/register", register);
