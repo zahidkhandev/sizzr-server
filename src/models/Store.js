@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
-
-const StoreSchema = new mongoose.Schema({
+const StoreSchema = new mongoose.Schema(
+  {
     password: { type: String, required: true },
     shopName: { type: String },
     email: { type: String, unique: true, required: true },
@@ -14,14 +14,14 @@ const StoreSchema = new mongoose.Schema({
     locationInCity: { type: String },
     landMark: { type: String },
     location: {
-        type: {
-            type: String,
-            default: 'Point',
-        },
-        coordinates: {
-            type: [Number],
-            required: true,
-        }
+      type: {
+        type: String,
+        default: "Point",
+      },
+      coordinates: {
+        type: [Number],
+        required: true,
+      },
     },
     gstNumber: { type: String },
     gstCertificate: { type: String },
@@ -33,28 +33,54 @@ const StoreSchema = new mongoose.Schema({
     isKidFriendly: { type: Boolean },
 
     gender: {
-        name: { type: String },
-        id: { type: Number }
+      name: { type: String },
+      id: { type: Number },
     },
     categories: [
-        {
-            name: { type: String },
-            id: { type: Number }
-        }
+      {
+        name: { type: String },
+        id: { type: Number },
+      },
     ],
     owner: {
-        email: { type: String },
-        name: { type: String },
-        phone: { type: String },
-        address: { type: String },
-        pincode: { type: String },
-        aadhar: { type: String }
+      email: { type: String },
+      name: { type: String },
+      phone: { type: String },
+      address: { type: String },
+      pincode: { type: String },
+      aadhar: { type: String },
     },
     images: [
-        {
-            url: { type: String }
-        }
+      {
+        url: { type: String },
+      },
     ],
-}, { timestamps: true });
+    services: [
+      {
+        categoryName: {
+          type: String,
+        },
+        services: [
+          {
+            _id: {
+              type: mongoose.Types.ObjectId,
+              default: mongoose.Types.ObjectId(),
+            },
+            name: { type: String },
+            cost: { type: Number },
+            duration: { type: Number },
+            desc: { type: String },
+            gender: { type: String },
+            tags: { type: String },
+            forKids: { type: Boolean },
+          },
+        ],
+      },
+    ],
+  },
+  { timestamps: true }
+);
 
-module.exports = mongoose.model('Store', StoreSchema);
+//ONE SERVICE ONLY BELONGS TO ONE CATEGORY... MANY SERVICES CAN BELONG TO THE SAME CATEOGRY.
+
+module.exports = mongoose.model("Store", StoreSchema);

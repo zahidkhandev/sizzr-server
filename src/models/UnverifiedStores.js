@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
-const UnverifiedStoreSchema = new mongoose.Schema({
+const UnverifiedStoreSchema = new mongoose.Schema(
+  {
     shopName: { type: String },
     email: { type: String, unique: true, required: true },
     phone: { type: String },
@@ -12,14 +13,14 @@ const UnverifiedStoreSchema = new mongoose.Schema({
     locationInCity: { type: String },
     landMark: { type: String },
     location: {
-        type: {
-            type: String,
-            default: 'Point',
-        },
-        coordinates: {
-            type: [Number],
-            required: true,
-        }
+      type: {
+        type: String,
+        default: "Point",
+      },
+      coordinates: {
+        type: [Number],
+        required: true,
+      },
     },
     gstNumber: { type: String },
     gstCertificate: { type: String },
@@ -30,21 +31,23 @@ const UnverifiedStoreSchema = new mongoose.Schema({
     businessType: { type: String },
     isKidFriendly: { type: Boolean },
     gender: {
-        name: { type: String },
-        id: { type: Number }
+      name: { type: String },
+      id: { type: Number },
     },
     categories: [
-        {
-            name: { type: String },
-            id: { type: Number }
-        }
+      {
+        name: { type: String },
+        id: { type: Number },
+      },
     ],
     owner: {
-        name: { type: String },
-        address: { type: String },
-        pincode: { type: String },
-        aadhar: { type: String }
+      name: { type: String },
+      address: { type: String },
+      pincode: { type: String },
+      aadhar: { type: String },
     },
-}, { timestamps: true })
+  },
+  { timestamps: true }
+);
 
-module.exports = mongoose.model('UnverifiedStore', UnverifiedStoreSchema);
+module.exports = mongoose.model("UnverifiedStore", UnverifiedStoreSchema);
