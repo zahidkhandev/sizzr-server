@@ -16,7 +16,6 @@ const addNewCategory = async (req, res, next) => {
 
   if (req.user.storeId === id) {
     const { category } = req.body;
-    console.log(category);
 
     const newCategory = await Store.findByIdAndUpdate(
       id,
@@ -30,7 +29,8 @@ const addNewCategory = async (req, res, next) => {
       },
       { new: true }
     );
-    res.json(newCategory);
+    const { services } = await newCategory;
+    res.json(services);
   } else {
     throw new UnauthenticatedError(
       `You are not authenticated to this store, please try again ${req.user.storeId}`
@@ -61,6 +61,81 @@ const getServices = async (req, res, next) => {
   }
 };
 
+const getOneService = async (req, res, next) => {
+  const id = req.params.id;
+
+  const { category, service } = req.body;
+
+  if (!req.params.id) {
+    throw new BadRequestError("Please provide store ID");
+  }
+
+  if (!category || !service) {
+    throw new BadRequestError("Select category and service");
+  }
+
+  if (req.user.storeId === id) {
+    const getService = await Store.aggregate([
+      {
+        $match: {
+          _id: mongoose.Types.ObjectId(id),
+        },
+      },
+      {
+        $project: {
+          services: {
+            $filter: {
+              input: "$services",
+              as: "service",
+              cond: {
+                $eq: ["$$service._id", mongoose.Types.ObjectId(category)],
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          services: "$services.services",
+        },
+      },
+      {
+        $project: {
+          services: {
+            $arrayElemAt: ["$services", 0],
+          },
+        },
+      },
+      {
+        $project: {
+          services: {
+            $filter: {
+              input: "$services",
+              as: "service",
+              cond: {
+                $eq: ["$$service._id", mongoose.Types.ObjectId(service)],
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          service: {
+            $arrayElemAt: ["$services", 0],
+          },
+        },
+      },
+    ]);
+
+    res.status(200).json(getService[0].service);
+  } else {
+    throw new UnauthenticatedError(
+      `You are not authenticated to this store, please try again ${req.user.storeId}`
+    );
+  }
+};
+
 const deleteCategory = async (req, res, next) => {
   const id = req.params.id;
   if (!req.params.id) {
@@ -76,14 +151,13 @@ const deleteCategory = async (req, res, next) => {
       {
         $pull: {
           services: {
-            _id: catId,
+            _id: mongoose.Types.ObjectId(catId),
           },
         },
       },
       { new: true }
     );
     res.json(newCategory);
-    // res.json({ msg: "Category deleted" });
   } else {
     throw new UnauthenticatedError(
       `You are not authenticated to this store, please try again ${req.user.storeId}`
@@ -115,7 +189,8 @@ const addNewService = async (req, res, next) => {
             desc: service.desc,
             gender: service.gender,
             forKids: service.forKids,
-            additionalInfo: service.additionalInfo,
+            priceType: service.priceType,
+            varCost: service.varCost,
           },
         },
       },
@@ -177,34 +252,46 @@ const updateService = async (req, res, next) => {
   }
 
   if (req.user.storeId === id) {
-    const { category, service } = req.body;
+    const { category, service, update } = req.body;
+
+    console.log(update);
+
+    const { name, gender, forKids, duration, cost, desc, priceType, varCost } =
+      update;
+
+    if (!name || !gender || !duration || !cost) {
+      throw new BadRequestError("All fields are required");
+    }
 
     const checkCategoryExistence = await Store.findOneAndUpdate(
       {
         _id: mongoose.Types.ObjectId(id),
-        "services._id": mongoose.Types.ObjectId(category),
-        // "services.services._id": mongoose.Types.ObjectId(service),
       },
       {
         $set: {
-          services: {
-            categoryName: "test",
-            services: [],
-          },
+          "services.$[catId].services.$[updatedService].cost": cost,
+          "services.$[catId].services.$[updatedService].name": name,
+          "services.$[catId].services.$[updatedService].gender": gender,
+          "services.$[catId].services.$[updatedService].forKids": forKids,
+          "services.$[catId].services.$[updatedService].duration": duration,
+          "services.$[catId].services.$[updatedService].desc": desc,
+          "services.$[catId].services.$[updatedService].priceType": priceType,
+          "services.$[catId].services.$[updatedService].varCost": varCost,
         },
       },
-      // {
-      //   "services.services._id": 1,
-      //   "services.services.cost": 1,
-      // },
-      { new: true }
+      {
+        arrayFilters: [
+          { "catId._id": mongoose.Types.ObjectId(category) },
+          { "updatedService._id": mongoose.Types.ObjectId(service) },
+        ],
+      }
     );
 
     if (checkCategoryExistence === null) {
       throw new NotFoundError("Category or service not found");
     }
 
-    res.json(checkCategoryExistence);
+    res.json(update);
   } else {
     throw new UnauthenticatedError(
       `You are not authenticated to this store, please try again ${req.user.storeId}`
@@ -219,4 +306,5 @@ module.exports = {
   deleteService,
   updateService,
   getServices,
+  getOneService,
 };

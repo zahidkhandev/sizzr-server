@@ -33,15 +33,10 @@ const StoreSchema = new mongoose.Schema(
     isKidFriendly: { type: Boolean },
 
     gender: {
-      name: { type: String },
-      id: { type: Number },
+      type: String,
+      enum: ["male", "female", "unisex"],
     },
-    categories: [
-      {
-        name: { type: String },
-        id: { type: Number },
-      },
-    ],
+    categories: { type: Array },
     owner: {
       email: { type: String },
       name: { type: String },
@@ -62,17 +57,19 @@ const StoreSchema = new mongoose.Schema(
         },
         services: [
           {
-            _id: {
-              type: mongoose.Types.ObjectId,
-              default: mongoose.Types.ObjectId(),
-            },
             name: { type: String },
             cost: { type: Number },
+            varCost: { type: Number },
             duration: { type: Number },
             desc: { type: String },
             gender: { type: String },
             tags: { type: String },
             forKids: { type: Boolean },
+            priceType: {
+              type: String,
+              enum: ["fixed", "variable", "hourly"],
+              defalt: "fixed",
+            },
           },
         ],
       },

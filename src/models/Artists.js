@@ -29,13 +29,21 @@ const ArtistSchema = new mongoose.Schema(
       linkedIn: { type: String },
       facebook: { type: String },
     },
+    type: { type: String, enum: ["individual", "employee"] },
+    experience: { type: Number },
+    profession: { type: String },
+    storeDetails: {
+      id: { type: mongoose.Types.ObjectId },
+      verified: { type: Boolean },
+    },
+    languages: { type: Array },
   },
   { timestamps: true }
 );
 
 ArtistSchema.methods.createJWT = function () {
   return jwt.sign({ artistId: this._id }, process.env.SECRET_KEY, {
-    expiresIn: "7d",
+    expiresIn: "30d",
   });
 };
 

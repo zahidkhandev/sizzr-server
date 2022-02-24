@@ -14,6 +14,11 @@ const AppointmentSchema = new mongoose.Schema(
       ref: "Store",
       required: [true, "Please provide a shop"],
     },
+    artistInfo: {
+      type: mongoose.Types.ObjectId,
+      ref: "Artists",
+      required: [true, "Please choose an employee"],
+    },
     status: {
       type: String,
       enum: [

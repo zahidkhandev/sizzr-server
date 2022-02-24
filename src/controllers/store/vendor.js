@@ -1,23 +1,35 @@
 const Store = require("../../models/Store");
 const createError = require("http-errors");
 const mongoose = require("mongoose");
+const {
+  BadRequestError,
+  UnauthenticatedError,
+  NotFoundError,
+} = require("../../errors/index");
 
 const getStore = async (req, res, next) => {
-  try {
-    const store = await Store.findById(req.params.id);
+  const id = req.params.id;
+
+  if (!id) {
+    throw new BadRequestError("Please provide store ID");
+  }
+  if (
+    req.user.storeId === id ||
+    req.user.isAdmin === true ||
+    req.user.isMod === true
+  ) {
+    const store = await Store.findById(id, { password: 0 });
 
     if (!store) {
-      throw createError(404, "Store does not exist");
+      throw new NotFoundError("Store does not exist");
     }
 
     const { password, ...info } = store._doc;
     res.status(200).json(info);
-  } catch (err) {
-    if (err instanceof mongoose.CastError) {
-      next(createError(400, "Invalid Store ID"));
-      return;
-    }
-    next(err);
+  } else {
+    throw new UnauthenticatedError(
+      "You are not allowed to perform this action"
+    );
   }
 };
 
@@ -103,27 +115,21 @@ const patchStore = async (req, res, next) => {
     if (req.body.password) {
       // req.body.password = CryptoJS.AES.encrypt(req.body.password, process.env.SECRET_KEY).toString();
     }
-    try {
-      const updatedUser = await Store.findByIdAndUpdate(
-        req.params.id,
-        { $set: req.body },
-        { new: true }
-      );
 
-      if (!updatedUser) {
-        throw createError(404, "User does not exist");
-      }
+    const updatedUser = await Store.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body },
+      { new: true }
+    );
 
-      res.status(200).json(updatedUser);
-    } catch (err) {
-      if (err instanceof mongoose.CastError) {
-        next(createError(400, "Invalid   ID"));
-        return;
-      }
-      next(err);
+    if (!updatedUser) {
+      throw new NotFoundError("User does not exist");
     }
+
+    const { password, ...info } = updatedUser;
+    res.status(200).json({ msg: "User updated sucessfully" });
   } else {
-    res.status(403).json("You can update only your account!");
+    throw new UnauthenticatedError("You can update only your account!");
   }
 };
 

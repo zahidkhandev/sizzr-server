@@ -77,7 +77,7 @@ app.use("/api/lucky/auth", adminAuthRoute);
 app.use("/api/store/auth", vendorAuthRoute);
 app.use("/api/store", vendorRoute);
 //Artist
-// app.use("/api/artist", artistRoute);
+app.use("/api/artist", artistRoute);
 app.use("/api/artist/auth", artistAuthRoute);
 //Appointments
 app.use("/api/appointments", appointmentsRoute);
