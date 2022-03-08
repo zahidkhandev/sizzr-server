@@ -6,7 +6,11 @@ const {
   verifyEmployee,
   removeEmployee,
 } = require("../controllers/store/artists");
-const { getAllByUser, getStoreByUser } = require("../controllers/store/byUser");
+const {
+  getAllByUser,
+  getStoreByUser,
+  getByLocation10Kms,
+} = require("../controllers/store/byUser");
 const {
   addNewService,
   addNewCategory,
@@ -22,7 +26,14 @@ const {
   getStore,
   deleteStore,
   patchStore,
+  uploadImage,
+  getImages,
+  deleteImage,
 } = require("../controllers/store/vendor");
+
+//Reviews
+
+// router.get("/reviews/:id");
 
 //Artsits
 router.get("/artists/generate/:id", verify, generateArtistLink);
@@ -32,9 +43,11 @@ router.patch("/artists/remove/:id", verify, removeEmployee);
 router.get("/artists/:id", verify, getStoreEmployees);
 
 //USER GET STORE
-router.get("/user/:id", getStoreByUser);
 
 router.get("/user", getAllByUser);
+router.get("/user/10", getByLocation10Kms);
+
+router.get("/user/:id", getStoreByUser);
 
 //SERVICES
 
@@ -56,7 +69,13 @@ router.get("/", getAll);
 
 router.get("/stats", verify, getStoreStats);
 
+//IMAGES
+router.post("/images/:id", verify, uploadImage);
+router.get("/images/:id", verify, getImages);
+router.delete("/images/:id", verify, deleteImage);
+
 //UPDATE
+
 router.patch("/:id", verify, patchStore);
 
 //DELETE

@@ -9,7 +9,7 @@ const {
   NotFoundError,
 } = require("../../errors/index");
 const AWS = require("aws-sdk");
-const { sendRawEmail, sendEmail } = require("../../aws/verifiedemail");
+const { sendRawEmail, sendEmail } = require("../../utils/aws/verifiedemail");
 
 //---------------VERIFIED STORE FUNCTIONS---------------
 

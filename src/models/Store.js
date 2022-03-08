@@ -45,9 +45,12 @@ const StoreSchema = new mongoose.Schema(
       pincode: { type: String },
       aadhar: { type: String },
     },
+    featuredImage: { type: String },
     images: [
       {
-        url: { type: String },
+        public_id: { type: String },
+        secure_url: { type: String },
+        desc: { type: String },
       },
     ],
     services: [

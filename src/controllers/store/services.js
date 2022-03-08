@@ -1,5 +1,4 @@
 const Store = require("../../models/Store");
-const createError = require("http-errors");
 const mongoose = require("mongoose");
 const {
   BadRequestError,
@@ -157,7 +156,7 @@ const deleteCategory = async (req, res, next) => {
       },
       { new: true }
     );
-    res.json(newCategory);
+    res.json({ msg: "Category deleted successfully" });
   } else {
     throw new UnauthenticatedError(
       `You are not authenticated to this store, please try again ${req.user.storeId}`

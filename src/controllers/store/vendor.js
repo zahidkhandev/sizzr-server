@@ -1,6 +1,7 @@
 const Store = require("../../models/Store");
 const createError = require("http-errors");
 const mongoose = require("mongoose");
+const cloudinary = require("../../utils/cloudinary/cloudinary");
 const {
   BadRequestError,
   UnauthenticatedError,
@@ -112,10 +113,6 @@ const deleteStore = async (req, res, next) => {
 
 const patchStore = async (req, res, next) => {
   if (req.user.storeId === req.params.id) {
-    if (req.body.password) {
-      // req.body.password = CryptoJS.AES.encrypt(req.body.password, process.env.SECRET_KEY).toString();
-    }
-
     const updatedUser = await Store.findByIdAndUpdate(
       req.params.id,
       { $set: req.body },
@@ -123,13 +120,84 @@ const patchStore = async (req, res, next) => {
     );
 
     if (!updatedUser) {
-      throw new NotFoundError("User does not exist");
+      throw new NotFoundError("Shop does not exist");
     }
 
     const { password, ...info } = updatedUser;
-    res.status(200).json({ msg: "User updated sucessfully" });
+    res.status(200).json({ msg: "Shop updated sucessfully" });
   } else {
     throw new UnauthenticatedError("You can update only your account!");
+  }
+};
+
+const uploadImage = async (req, res, next) => {
+  if (req.user.storeId === req.params.id) {
+    const { desc, data } = req.body;
+
+    const result = await cloudinary.uploader.upload(data, {
+      folder: `store/${req.params.id}`,
+    });
+
+    if (result) {
+      const { secure_url, public_id } = result;
+      const updatedUser = await Store.findByIdAndUpdate(req.params.id, {
+        $push: {
+          images: {
+            secure_url: secure_url,
+            public_id: public_id,
+            desc: desc,
+          },
+        },
+      });
+
+      if (updatedUser) res.json({ msg: "Image uploaded successfully!" });
+      else {
+        throw new NotFoundError("Image upload failed");
+      }
+    } else {
+      throw new BadRequestError("Image upload failed");
+    }
+  } else {
+    throw new UnauthenticatedError("You are unauthenticated!");
+  }
+};
+
+const getImages = async (req, res, next) => {
+  if (req.user.storeId === req.params.id) {
+    const fetchImages = await Store.findById(req.user.storeId, {
+      images: 1,
+      featuredImage: 1,
+    });
+    res.json(fetchImages);
+  } else {
+    throw new UnauthenticatedError("You are unauthenticated!");
+  }
+};
+
+const deleteImage = async (req, res, next) => {
+  if (req.user.storeId === req.params.id) {
+    //Image id for mongodb, public id for cloudinary
+    const { imgId, public_id } = req.body;
+    if (!imgId) {
+      throw new BadRequestError("Please provide Image ID");
+    }
+    const deleteImage = await Store.findByIdAndUpdate(req.user.storeId, {
+      $pull: {
+        images: {
+          _id: mongoose.Types.ObjectId(imgId),
+        },
+      },
+    });
+    const cloudDelete = await cloudinary.uploader.destroy(public_id);
+
+    if (cloudDelete.result === "not found")
+      throw new NotFoundError("Image does not exist or is already deleted");
+
+    if (deleteImage && cloudDelete)
+      res.json({ msg: "Image deleted successfully!" });
+    else throw new NotFoundError("Image delete failed");
+  } else {
+    throw new UnauthenticatedError("You are unauthenticated!");
   }
 };
 
@@ -139,4 +207,7 @@ module.exports = {
   getStoreStats,
   deleteStore,
   patchStore,
+  uploadImage,
+  getImages,
+  deleteImage,
 };

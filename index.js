@@ -16,6 +16,7 @@ const vendorRoute = require("./src/routes/vendor");
 const appointmentsRoute = require("./src/routes/appointments");
 const artistRoute = require("./src/routes/artist");
 const artistAuthRoute = require("./src/routes/artistAuth");
+const reviewsRoute = require("./src/routes/review");
 
 // error handler
 const notFoundMiddleware = require("./src/middleware/not-found");
@@ -32,7 +33,8 @@ const swaggerUI = require("swagger-ui-express");
 const YAML = require("yamljs");
 const swaggerDocument = YAML.load("./swagger.yaml");
 
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 //Security Config
 app.set("trust proxy", 1);
@@ -81,6 +83,8 @@ app.use("/api/artist", artistRoute);
 app.use("/api/artist/auth", artistAuthRoute);
 //Appointments
 app.use("/api/appointments", appointmentsRoute);
+//Reviews
+app.use("/api/reviews", reviewsRoute);
 
 //ERROR HANDLER
 

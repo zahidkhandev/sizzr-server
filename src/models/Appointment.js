@@ -4,6 +4,7 @@ const AppointmentSchema = new mongoose.Schema(
   {
     startTime: { type: Date, required: true },
     endTime: { type: Date, required: true },
+    duration: { type: Number, required: true },
     createdBy: {
       type: mongoose.Types.ObjectId,
       ref: "User",

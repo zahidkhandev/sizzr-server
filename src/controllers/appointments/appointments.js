@@ -7,7 +7,7 @@ const mongoose = require("mongoose");
 const createAppointment = async (req, res, next) => {
   req.body.createdBy = req.user.userId;
 
-  const { storeInfo, startTime, endTime } = req.body;
+  const { storeInfo, startTime, endTime, duration } = req.body;
 
   if (!storeInfo) {
     throw new BadRequestError("Invalid Store");
@@ -21,13 +21,15 @@ const createAppointment = async (req, res, next) => {
     throw new BadRequestError("Appointment end time is required");
   }
 
+  if (!duration) {
+    throw new BadRequestError("Appointment duration is required");
+  }
+
   const store = await Store.findById(storeInfo);
 
   if (!store) {
     throw new NotFoundError("Store was not found in database..");
   }
-
-  console.log(store);
 
   const appointment = await Appointment.create(req.body);
   res.status(StatusCodes.CREATED).json({ appointment });
@@ -65,6 +67,14 @@ const getAppointmentUserSide = async (req, res, next) => {
       },
     },
     {
+      $lookup: {
+        from: "artists",
+        localField: "artistInfo",
+        foreignField: "_id",
+        as: "artist_details",
+      },
+    },
+    {
       $project: {
         _id: 1,
         status: 1,
@@ -76,8 +86,12 @@ const getAppointmentUserSide = async (req, res, next) => {
         storeInfo: 1,
         endTime: 1,
         startTime: 1,
+        duration: 1,
         store_details: {
           $arrayElemAt: ["$store_details", 0],
+        },
+        artist_details: {
+          $arrayElemAt: ["$artist_details", 0],
         },
       },
     },
@@ -92,6 +106,7 @@ const getAppointmentUserSide = async (req, res, next) => {
         updatedAt: 1,
         endTime: 1,
         startTime: 1,
+        duration: 1,
         store_details: {
           _id: "$store_details._id",
           phone: "$store_details.phone",
@@ -104,6 +119,15 @@ const getAppointmentUserSide = async (req, res, next) => {
           landmark: "$store_details.landMark",
           categories: "$store_details.categories",
           website: "$store_details.website",
+          featuredImage: "$store_details.featuredImage",
+        },
+        artist_details: {
+          _id: "$artist_details._id",
+          phone: "$artist_details.phone",
+          firstName: "$artist_details.firstName",
+          lastName: "$artist_details.lastName",
+          email: "$artist_details.email",
+          profilePic: "$artist_details.profilePic",
         },
       },
     },
