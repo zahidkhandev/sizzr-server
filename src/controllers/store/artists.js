@@ -113,10 +113,13 @@ const removeEmployee = async (req, res, next) => {
     throw new BadRequestError("Please provide employee ID");
   }
 
-  const emp = await Artist.findById(req.body.employee, {
-    storeDetails: 1,
-    _id: 0,
-  });
+  const emp = await Artist.findById(
+    { _id: req.body.employee },
+    {
+      storeDetails: 1,
+      _id: 0,
+    }
+  );
 
   if (!emp.storeDetails.id) {
     throw new UnauthenticatedError(`This employee was never part of your team`);
@@ -125,12 +128,14 @@ const removeEmployee = async (req, res, next) => {
   if (emp.storeDetails.id.toString() === id || emp.storeDetails.id === id) {
     if (req.user.storeId === id) {
       const delEmp = await Artist.findOneAndUpdate(
-        req.body.employee,
+        { _id: req.body.employee },
         { $unset: { storeDetails: 1 } },
         {
           new: true,
         }
       );
+
+      // console.log(delEmp);
 
       res.json({
         status: 200,
